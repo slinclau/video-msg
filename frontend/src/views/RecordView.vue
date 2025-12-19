@@ -47,185 +47,79 @@ function startNewRecording() {
 </script>
 
 <template>
-  <div class="record-view">
-    <h1>Video Message Recorder</h1>
+  <div class="max-w-5xl mx-auto px-6 py-12">
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-3">
+        Video Message Recorder
+      </h1>
+      <p class="text-gray-600 text-lg">Record and share your video messages instantly</p>
+    </div>
 
     <RecordingControls @recording-stopped="handleRecordingStopped" />
 
-    <div v-if="showUploadSection && !recordingStore.uploadedUuid" class="upload-section">
+    <div v-if="showUploadSection && !recordingStore.uploadedUuid" class="mt-8 text-center">
       <button
         @click="uploadRecording"
         :disabled="recordingStore.isUploading"
-        class="btn btn-upload"
+        class="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
       >
         {{ recordingStore.isUploading ? 'Uploading...' : 'Upload Recording' }}
       </button>
 
-      <div v-if="recordingStore.isUploading" class="upload-progress">
-        <div class="progress-bar">
-          <div class="progress-fill" :style="{ width: recordingStore.uploadProgress + '%' }"></div>
+      <div v-if="recordingStore.isUploading" class="mt-6 max-w-md mx-auto">
+        <div class="w-full h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+          <div
+            class="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out rounded-full"
+            :style="{ width: recordingStore.uploadProgress + '%' }"
+          ></div>
         </div>
-        <p>Uploading... {{ recordingStore.uploadProgress }}%</p>
+        <p class="mt-3 text-gray-700 font-medium">Uploading... {{ recordingStore.uploadProgress }}%</p>
       </div>
 
-      <div v-if="recordingStore.error" class="error-message">
+      <div v-if="recordingStore.error" class="mt-6 max-w-md mx-auto bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl">
         {{ recordingStore.error }}
       </div>
     </div>
 
-    <div v-if="shareLink" class="share-section">
-      <h2>Recording Uploaded Successfully!</h2>
+    <div v-if="shareLink" class="mt-12 bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full mb-4">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-gray-800">Recording Uploaded Successfully!</h2>
+      </div>
 
-      <div class="share-link-container">
+      <div class="flex flex-col sm:flex-row gap-3 mb-6">
         <input
           type="text"
           :value="shareLink"
           readonly
-          class="share-link-input"
+          class="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-mono text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
-        <button @click="copyToClipboard" class="btn btn-copy">
+        <button
+          @click="copyToClipboard"
+          class="px-6 py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors duration-200 whitespace-nowrap shadow-md hover:shadow-lg"
+        >
           Copy Link
         </button>
       </div>
 
-      <div class="action-buttons">
-        <button @click="watchRecording" class="btn btn-watch">
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <button
+          @click="watchRecording"
+          class="px-8 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+        >
           Watch Recording
         </button>
-        <button @click="startNewRecording" class="btn btn-new">
+        <button
+          @click="startNewRecording"
+          class="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+        >
           Start New Recording
         </button>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.record-view {
-  padding: 40px 20px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-h1 {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 32px;
-}
-
-h2 {
-  color: #42b983;
-  margin-bottom: 20px;
-}
-
-.upload-section {
-  margin-top: 32px;
-  text-align: center;
-}
-
-.btn {
-  padding: 12px 32px;
-  font-size: 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-weight: 500;
-}
-
-.btn-upload {
-  background-color: #3498db;
-  color: white;
-}
-
-.btn-upload:hover:not(:disabled) {
-  background-color: #2980b9;
-}
-
-.btn-upload:disabled {
-  background-color: #95a5a6;
-  cursor: not-allowed;
-}
-
-.upload-progress {
-  margin-top: 20px;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 24px;
-  background-color: #ecf0f1;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: #3498db;
-  transition: width 0.3s;
-}
-
-.error-message {
-  background-color: #fee;
-  color: #c33;
-  padding: 12px;
-  border-radius: 4px;
-  margin-top: 16px;
-}
-
-.share-section {
-  margin-top: 40px;
-  padding: 24px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-}
-
-.share-link-container {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.share-link-input {
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: monospace;
-}
-
-.btn-copy {
-  background-color: #95a5a6;
-  color: white;
-}
-
-.btn-copy:hover {
-  background-color: #7f8c8d;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.btn-watch {
-  background-color: #42b983;
-  color: white;
-}
-
-.btn-watch:hover {
-  background-color: #359268;
-}
-
-.btn-new {
-  background-color: #e67e22;
-  color: white;
-}
-
-.btn-new:hover {
-  background-color: #d35400;
-}
-</style>

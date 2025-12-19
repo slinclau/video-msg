@@ -36,143 +36,53 @@ async function handleStop() {
 </script>
 
 <template>
-  <div class="recording-controls">
-    <div v-if="error" class="error-message">
+  <div class="max-w-4xl mx-auto p-6">
+    <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl mb-6">
       {{ error }}
     </div>
 
-    <div class="controls-section">
+    <div class="flex flex-col items-center gap-6 mb-8">
       <button
         v-if="!isRecording"
         @click="handleStart"
-        class="btn btn-start"
+        class="group relative px-12 py-5 bg-gradient-to-r from-emerald-500 to-green-600 text-white text-lg font-bold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
       >
-        Start Recording
+        <span class="flex items-center gap-3">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+          Start Recording
+        </span>
       </button>
 
-      <div v-else class="recording-active">
-        <div class="recording-indicator">
-          <span class="recording-dot"></span>
-          <span class="recording-time">{{ formatTime(recordingTime) }}</span>
+      <div v-else class="flex flex-col items-center gap-6">
+        <div class="flex items-center gap-3 bg-white px-8 py-4 rounded-2xl shadow-lg border border-red-200">
+          <span class="relative flex h-4 w-4">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500"></span>
+          </span>
+          <span class="text-3xl font-bold font-mono text-gray-800 tabular-nums">{{ formatTime(recordingTime) }}</span>
         </div>
         <button
           @click="handleStop"
           :disabled="isStopping"
-          class="btn btn-stop"
+          class="px-12 py-5 bg-gradient-to-r from-red-500 to-rose-600 text-white text-lg font-bold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
-          {{ isStopping ? 'Stopping...' : 'Stop Recording' }}
+          <span class="flex items-center gap-3">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <rect x="6" y="6" width="12" height="12" rx="2" />
+            </svg>
+            {{ isStopping ? 'Stopping...' : 'Stop Recording' }}
+          </span>
         </button>
       </div>
     </div>
 
-    <div v-if="previewUrl && !isRecording" class="preview-section">
-      <h3>Preview</h3>
-      <video :src="previewUrl" controls class="preview-video"></video>
+    <div v-if="previewUrl && !isRecording" class="mt-8">
+      <h3 class="text-2xl font-bold text-gray-800 mb-4">Preview</h3>
+      <div class="bg-white rounded-2xl shadow-xl p-4 border border-gray-100">
+        <video :src="previewUrl" controls class="w-full rounded-lg"></video>
+      </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.recording-controls {
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.error-message {
-  background-color: #fee;
-  color: #c33;
-  padding: 12px;
-  border-radius: 4px;
-  margin-bottom: 16px;
-}
-
-.controls-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.btn {
-  padding: 12px 32px;
-  font-size: 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-weight: 500;
-}
-
-.btn-start {
-  background-color: #42b983;
-  color: white;
-}
-
-.btn-start:hover {
-  background-color: #359268;
-}
-
-.btn-stop {
-  background-color: #e53935;
-  color: white;
-}
-
-.btn-stop:hover {
-  background-color: #c62828;
-}
-
-.recording-active {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.recording-indicator {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.recording-dot {
-  width: 12px;
-  height: 12px;
-  background-color: #e53935;
-  border-radius: 50%;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.3;
-  }
-}
-
-.recording-time {
-  font-family: 'Courier New', monospace;
-  color: #333;
-}
-
-.preview-section {
-  margin-top: 32px;
-}
-
-.preview-section h3 {
-  margin-bottom: 12px;
-  color: #333;
-}
-
-.preview-video {
-  width: 100%;
-  max-width: 100%;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-</style>

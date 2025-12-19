@@ -1,27 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div id="app">
+  <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
     <RouterView />
   </div>
 </template>
-
-<style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-  background-color: #f5f5f5;
-  color: #333;
-  line-height: 1.6;
-}
-
-#app {
-  min-height: 100vh;
-  background-color: white;
-}
-</style>

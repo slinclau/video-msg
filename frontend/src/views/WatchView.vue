@@ -89,34 +89,53 @@ function formatDate(dateString: string): string {
 </script>
 
 <template>
-  <div class="watch-view">
-    <h1>Watch Recording</h1>
+  <div class="max-w-6xl mx-auto px-6 py-12">
+    <h1 class="text-5xl font-bold text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-12">
+      Watch Recording
+    </h1>
 
-    <div v-if="loading" class="loading">
-      Loading recording...
+    <div v-if="loading" class="text-center py-24">
+      <div class="inline-block w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
+      <p class="text-xl text-gray-600 font-medium">Loading recording...</p>
     </div>
 
-    <div v-else-if="error" class="error-message">
-      <p>{{ error }}</p>
-      <button @click="goToRecord" class="btn btn-back">
+    <div v-else-if="error" class="text-center py-16 bg-white rounded-2xl shadow-xl p-12 border border-red-100">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-6">
+        <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </div>
+      <p class="text-red-600 text-xl font-semibold mb-6">{{ error }}</p>
+      <button
+        @click="goToRecord"
+        class="px-8 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+      >
         Back to Recorder
       </button>
     </div>
 
-    <div v-else-if="recording" class="recording-container">
+    <div v-else-if="recording" class="flex flex-col gap-8">
       <!-- Processing Status Message -->
-      <div v-if="recording.processingStatus === 'PROCESSING'" class="processing-message">
-        <div class="spinner"></div>
-        <h2>Processing Video...</h2>
-        <p>Your video is being re-encoded to ensure optimal playback. This may take a minute.</p>
-        <p class="info-text">The page will update automatically when processing is complete.</p>
+      <div v-if="recording.processingStatus === 'PROCESSING'" class="text-center py-16 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl shadow-2xl text-white">
+        <div class="inline-block w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mb-8"></div>
+        <h2 class="text-3xl font-bold mb-4">Processing Video...</h2>
+        <p class="text-lg mb-2 opacity-95">Your video is being re-encoded to ensure optimal playback. This may take a minute.</p>
+        <p class="text-sm opacity-80 italic">The page will update automatically when processing is complete.</p>
       </div>
 
       <!-- Failed Status Message -->
-      <div v-else-if="recording.processingStatus === 'FAILED'" class="error-message">
-        <h2>Processing Failed</h2>
-        <p>{{ recording.processingError || 'An error occurred while processing your video.' }}</p>
-        <button @click="goToRecord" class="btn btn-back">
+      <div v-else-if="recording.processingStatus === 'FAILED'" class="text-center py-16 bg-white rounded-2xl shadow-xl p-12 border border-red-100">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-6">
+          <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">Processing Failed</h2>
+        <p class="text-red-600 text-lg mb-6">{{ recording.processingError || 'An error occurred while processing your video.' }}</p>
+        <button
+          @click="goToRecord"
+          class="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+        >
           Try Recording Again
         </button>
       </div>
@@ -124,196 +143,53 @@ function formatDate(dateString: string): string {
       <!-- Video Player (only show when READY) -->
       <VideoPlayer v-else :uuid="uuid" />
 
-      <div class="recording-info">
-        <h2>Recording Details</h2>
-        <div class="info-grid">
-          <div class="info-item">
-            <strong>Filename:</strong>
-            <span>{{ recording.filename }}</span>
+      <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Recording Details</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="flex flex-col gap-1">
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Filename</span>
+            <span class="text-base text-gray-800 font-medium">{{ recording.filename }}</span>
           </div>
-          <div class="info-item">
-            <strong>Size:</strong>
-            <span>{{ formatFileSize(recording.fileSize) }}</span>
+          <div class="flex flex-col gap-1">
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Size</span>
+            <span class="text-base text-gray-800 font-medium">{{ formatFileSize(recording.fileSize) }}</span>
           </div>
-          <div class="info-item">
-            <strong>Type:</strong>
-            <span>{{ recording.contentType }}</span>
+          <div class="flex flex-col gap-1">
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Type</span>
+            <span class="text-base text-gray-800 font-medium">{{ recording.contentType }}</span>
           </div>
-          <div class="info-item">
-            <strong>Status:</strong>
-            <span :class="`status-${recording.processingStatus.toLowerCase()}`">
+          <div class="flex flex-col gap-1">
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Status</span>
+            <span
+              class="text-base font-bold"
+              :class="{
+                'text-amber-600': recording.processingStatus === 'PROCESSING',
+                'text-emerald-600': recording.processingStatus === 'READY',
+                'text-red-600': recording.processingStatus === 'FAILED'
+              }"
+            >
               {{ recording.processingStatus }}
             </span>
           </div>
-          <div class="info-item">
-            <strong>Created:</strong>
-            <span>{{ formatDate(recording.createdAt) }}</span>
+          <div class="flex flex-col gap-1">
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Created</span>
+            <span class="text-base text-gray-800 font-medium">{{ formatDate(recording.createdAt) }}</span>
           </div>
-          <div class="info-item">
-            <strong>UUID:</strong>
-            <span class="uuid">{{ recording.uuid }}</span>
+          <div class="flex flex-col gap-1">
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wide">UUID</span>
+            <span class="text-sm text-gray-800 font-mono break-all">{{ recording.uuid }}</span>
           </div>
         </div>
       </div>
 
-      <div class="actions">
-        <button @click="goToRecord" class="btn btn-back">
+      <div class="text-center">
+        <button
+          @click="goToRecord"
+          class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+        >
           Create New Recording
         </button>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.watch-view {
-  padding: 40px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-h1 {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 32px;
-}
-
-h2 {
-  color: #2c3e50;
-  margin-bottom: 16px;
-}
-
-.loading {
-  text-align: center;
-  font-size: 18px;
-  color: #666;
-  padding: 60px 0;
-}
-
-.error-message {
-  text-align: center;
-  padding: 40px;
-}
-
-.error-message p {
-  color: #c33;
-  font-size: 18px;
-  margin-bottom: 20px;
-}
-
-.recording-container {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.recording-info {
-  background-color: #f8f9fa;
-  padding: 24px;
-  border-radius: 8px;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.info-item strong {
-  color: #666;
-  font-size: 14px;
-}
-
-.info-item span {
-  color: #2c3e50;
-  font-size: 16px;
-}
-
-.uuid {
-  font-family: monospace;
-  font-size: 14px;
-}
-
-.actions {
-  text-align: center;
-}
-
-.btn {
-  padding: 12px 32px;
-  font-size: 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-weight: 500;
-}
-
-.btn-back {
-  background-color: #42b983;
-  color: white;
-}
-
-.btn-back:hover {
-  background-color: #359268;
-}
-
-.processing-message {
-  text-align: center;
-  padding: 60px 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  color: white;
-}
-
-.processing-message h2 {
-  color: white;
-  margin-bottom: 16px;
-}
-
-.processing-message p {
-  font-size: 16px;
-  margin-bottom: 8px;
-  opacity: 0.95;
-}
-
-.processing-message .info-text {
-  font-size: 14px;
-  opacity: 0.8;
-  font-style: italic;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  margin: 0 auto 24px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.status-processing {
-  color: #f39c12;
-  font-weight: 600;
-}
-
-.status-ready {
-  color: #27ae60;
-  font-weight: 600;
-}
-
-.status-failed {
-  color: #e74c3c;
-  font-weight: 600;
-}
-</style>
