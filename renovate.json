@@ -8,52 +8,70 @@
   ],
   "timezone": "Europe/Berlin",
   "prHourlyLimit": 10,
-  "prConcurrentLimit": 5,
+  "prConcurrentLimit": 20,
   "rebaseWhen": "behind-base-branch",
   "rangeStrategy": "bump",
-  "automerge": true,
   "automergeType": "branch",
-  "ignoreTests": true,
-  "labels": [
-    "dependencies"
-  ],
-  "lockFileMaintenance": {
-    "enabled": true,
-    "automerge": true
-  },
-  "vulnerabilityAlerts": {
-    "enabled": true,
-    "labels": [
-      "security"
-    ],
-    "automerge": true,
-    "schedule": [
-      "at any time"
-    ]
-  },
   "packageRules": [
     {
-      "description": "Disable automerge for major updates",
-      "matchUpdateTypes": ["major"],
+      "automerge": true,
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
+    },
+    {
+      "matchCurrentVersion": "/^0\\./",
       "automerge": false
     },
     {
-      "description": "npm dependencies in frontend",
-      "matchManagers": ["npm"],
-      "matchPaths": ["frontend/**"]
+      "matchManagers": [
+        "npm"
+      ],
+      "groupName": "npm dependencies"
     },
     {
-      "description": "Maven dependencies in backend",
-      "matchManagers": ["maven"],
-      "matchPaths": ["backend/**"]
+      "matchManagers": [
+        "dockerfile",
+        "docker-compose"
+      ],
+      "groupName": "Docker dependencies"
     },
     {
-      "description": "Helm dependencies",
-      "matchManagers": ["helm-values"]
+      "matchManagers": [
+        "maven"
+      ],
+      "groupName": "Maven dependencies"
     },
     {
-      "description": "Docker base images",
-      "matchManagers": ["dockerfile", "docker-compose"]
+      "matchManagers": [
+        "helmv3",
+        "helmfile"
+      ],
+      "groupName": "Helm dependencies"
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "GitHub Actions"
     }
-  ]
+  ],
+  "ignoreTests": true,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "at any time"
+    ],
+    "automerge": true
+  },
+  "vulnerabilityAlerts": {
+    "labels": [
+      "security"
+    ],
+    "schedule": [
+      "at any time"
+    ],
+    "automerge": true
+  }
 }
