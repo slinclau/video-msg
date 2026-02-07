@@ -1,15 +1,35 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useMediaRecorder } from '@/composables/useMediaRecorder'
 import { useRecordingStore } from '@/stores/recording'
+import WebcamPreview from '@/components/WebcamPreview.vue'
 
 const emit = defineEmits<{
   recordingStopped: [blob: Blob]
 }>()
 
-const { isRecording, recordingTime, error, previewUrl, isBrowserSupported, startRecording, stopRecording, formatTime } = useMediaRecorder()
+const {
+  isRecording,
+  recordingTime,
+  error,
+  previewUrl,
+  isBrowserSupported,
+  startRecording,
+  stopRecording,
+  formatTime,
+  webcamEnabled,
+  webcamStream,
+  toggleWebcam,
+  initWebcam,
+} = useMediaRecorder()
 const recordingStore = useRecordingStore()
 const isStopping = ref(false)
+
+onMounted(async () => {
+  if (webcamEnabled.value) {
+    await initWebcam()
+  }
+})
 
 async function handleStart() {
   try {
@@ -53,6 +73,24 @@ async function handleStop() {
       {{ error }}
     </div>
 
+    <!-- Webcam toggle -->
+    <div v-if="isBrowserSupported && !previewUrl" class="flex justify-center mb-6">
+      <button
+        @click="toggleWebcam"
+        :disabled="isRecording"
+        class="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200"
+        :class="webcamEnabled
+          ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200 ring-1 ring-indigo-300'
+          : 'bg-gray-100 text-gray-500 hover:bg-gray-200 ring-1 ring-gray-300'"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path v-if="webcamEnabled" stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9.75a2.25 2.25 0 002.25-2.25V7.5a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+          <path v-else stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M12 18.75H4.5a2.25 2.25 0 01-2.25-2.25V9m12.841 9.091L16.5 19.5m-1.409-.591l-6.341-6.34M2.25 7.5l14.5 14.5" />
+        </svg>
+        {{ webcamEnabled ? 'Camera On' : 'Camera Off' }}
+      </button>
+    </div>
+
     <div class="flex flex-col items-center gap-6 mb-8">
       <button
         v-if="!isRecording"
@@ -90,6 +128,9 @@ async function handleStop() {
         </button>
       </div>
     </div>
+
+    <!-- Webcam live preview bubble (shown when webcam is on) -->
+    <WebcamPreview :stream="webcamStream" />
 
     <div v-if="previewUrl && !isRecording" class="mt-8">
       <h3 class="text-2xl font-bold text-gray-800 mb-4">Preview</h3>
