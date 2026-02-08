@@ -13,7 +13,7 @@ function attachStream() {
   }
 }
 
-watch(() => props.stream, attachStream)
+watch(() => props.stream, attachStream, { flush: 'post' })
 onMounted(attachStream)
 </script>
 

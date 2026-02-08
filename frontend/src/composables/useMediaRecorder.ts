@@ -99,7 +99,19 @@ export function useMediaRecorder() {
     const cw = canvas.width
     const ch = canvas.height
 
-    function compositeFrame() {
+    let lastFrameTime = 0
+    const TARGET_FPS = 30
+    const FRAME_INTERVAL = 1000 / TARGET_FPS
+
+    function compositeFrame(timestamp: number) {
+      animationFrameId = requestAnimationFrame(compositeFrame)
+
+      // Throttle frame rate
+      if (timestamp - lastFrameTime < FRAME_INTERVAL) {
+        return
+      }
+      lastFrameTime = timestamp
+
       // Draw screen capture as background
       ctx.drawImage(dispVideo, 0, 0, cw, ch)
 
@@ -159,7 +171,7 @@ export function useMediaRecorder() {
       animationFrameId = requestAnimationFrame(compositeFrame)
     }
 
-    compositeFrame()
+    requestAnimationFrame(compositeFrame)
   }
 
   async function startRecording() {
@@ -237,9 +249,28 @@ export function useMediaRecorder() {
       if (webcamStream.value) {
         // Set up canvas compositing for screen + webcam overlay
         const settings = originalDisplayTrack.getSettings()
+        
+        // Cap resolution at 1080p to improve performance
+        const rawWidth = settings.width || 1920
+        const rawHeight = settings.height || 1080
+        const MAX_WIDTH = 1920
+        const MAX_HEIGHT = 1080
+        
+        let width = rawWidth
+        let height = rawHeight
+        
+        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+          const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height)
+          width = Math.round(width * ratio)
+          height = Math.round(height * ratio)
+          console.log(`Downscaling recording canvas from ${rawWidth}x${rawHeight} to ${width}x${height}`)
+        } else {
+          console.log(`Recording canvas size: ${width}x${height}`)
+        }
+
         const canvas = document.createElement('canvas')
-        canvas.width = settings.width || 1920
-        canvas.height = settings.height || 1080
+        canvas.width = width
+        canvas.height = height
         const ctx = canvas.getContext('2d')!
 
         displayVideoEl = document.createElement('video')
