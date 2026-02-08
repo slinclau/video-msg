@@ -142,11 +142,6 @@ export function useMediaRecorder() {
         ctx.arc(cx, cy, bubbleRadius, 0, Math.PI * 2)
         ctx.clip()
 
-        // Mirror webcam horizontally (natural mirror view in recording)
-        ctx.translate(cx, cy)
-        ctx.scale(-1, 1)
-        ctx.translate(-cx, -cy)
-
         // Center-crop webcam to square to fill the circle
         const vw = camVideo.videoWidth
         const vh = camVideo.videoHeight
