@@ -17,6 +17,15 @@ export function useMediaRecorder() {
   let stopReject: ((error: Error) => void) | null = null
   let audioContext: AudioContext | null = null
   let audioDestination: MediaStreamAudioDestinationNode | null = null
+
+  // Layout state for compositor
+  // Position is normalized (0.0 to 1.0) relative to canvas size
+  // Size is normalized radius (0.0 to 0.5)
+  const currentLayout = { x: 0.1, y: 0.9, size: 0.09 } // Default bottom-left
+  const targetLayout = { x: 0.1, y: 0.9, size: 0.09 }
+  
+  // Easing factor for smooth transition (approx 0.1 per frame at 30fps = ~0.5s settle)
+  const LERP_FACTOR = 0.15
   let animationFrameId: number | null = null
   let displayVideoEl: HTMLVideoElement | null = null
   let webcamVideoEl: HTMLVideoElement | null = null
@@ -115,12 +124,17 @@ export function useMediaRecorder() {
       // Draw screen capture as background
       ctx.drawImage(dispVideo, 0, 0, cw, ch)
 
+      // Interpolate layout
+      currentLayout.x += (targetLayout.x - currentLayout.x) * LERP_FACTOR
+      currentLayout.y += (targetLayout.y - currentLayout.y) * LERP_FACTOR
+      currentLayout.size += (targetLayout.size - currentLayout.size) * LERP_FACTOR
+
       // Draw webcam overlay if available
       if (camVideo && camVideo.readyState >= 2 && webcamStream.value) {
-        const bubbleRadius = Math.min(cw, ch) * 0.09
-        const padding = bubbleRadius * 0.35
-        const cx = padding + bubbleRadius
-        const cy = ch - padding - bubbleRadius
+        // Calculate pixel values from normalized state
+        const bubbleRadius = Math.min(cw, ch) * currentLayout.size
+        const cx = cw * currentLayout.x
+        const cy = ch * currentLayout.y
 
         // Circular clip
         ctx.save()
@@ -570,5 +584,10 @@ export function useMediaRecorder() {
     formatTime,
     toggleWebcam,
     initWebcam,
+    setWebcamLayout: (layout: { x: number, y: number, size: number }) => {
+      targetLayout.x = layout.x
+      targetLayout.y = layout.y
+      targetLayout.size = layout.size
+    }
   }
 }

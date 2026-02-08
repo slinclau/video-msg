@@ -21,15 +21,46 @@ const {
   webcamStream,
   toggleWebcam,
   initWebcam,
+  setWebcamLayout
 } = useMediaRecorder()
 const recordingStore = useRecordingStore()
 const isStopping = ref(false)
+const currentLayoutMode = ref<'tl' | 'tr' | 'bl' | 'br' | 'center'>('bl')
 
 onMounted(async () => {
   if (webcamEnabled.value) {
     await initWebcam()
   }
 })
+
+function setLayout(mode: 'tl' | 'tr' | 'bl' | 'br' | 'center') {
+  currentLayoutMode.value = mode
+  
+  // Update recording compositor
+  // Coordinates are normalized (0.0 - 1.0)
+  // Size is normalized radius relative to min(width, height)
+  let layout = { x: 0.1, y: 0.9, size: 0.09 } // Default BL
+
+  switch (mode) {
+    case 'tl':
+      layout = { x: 0.1, y: 0.15, size: 0.09 }
+      break
+    case 'tr':
+      layout = { x: 0.9, y: 0.15, size: 0.09 }
+      break
+    case 'bl':
+      layout = { x: 0.1, y: 0.85, size: 0.09 }
+      break
+    case 'br':
+      layout = { x: 0.9, y: 0.85, size: 0.09 }
+      break
+    case 'center':
+      layout = { x: 0.5, y: 0.5, size: 0.27 } // Large size for focus
+      break
+  }
+  
+  setWebcamLayout(layout)
+}
 
 async function handleStart() {
   try {
@@ -73,11 +104,10 @@ async function handleStop() {
       {{ error }}
     </div>
 
-    <!-- Webcam toggle -->
-    <div v-if="isBrowserSupported && !previewUrl" class="flex justify-center mb-6">
+    <!-- Webcam toggle and Layout Controls -->
+    <div v-if="isBrowserSupported && !previewUrl" class="flex flex-col items-center gap-4 mb-6">
       <button
         @click="toggleWebcam"
-        :disabled="isRecording"
         class="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200"
         :class="webcamEnabled
           ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200 ring-1 ring-indigo-300'
@@ -89,6 +119,50 @@ async function handleStop() {
         </svg>
         {{ webcamEnabled ? 'Camera On' : 'Camera Off' }}
       </button>
+
+      <!-- Layout Controls -->
+      <div v-if="webcamEnabled" class="flex items-center gap-3 p-2 bg-gray-100 rounded-xl">
+        <button 
+          @click="setLayout('tl')" 
+          title="Top Left"
+          class="p-3 rounded-lg shadow-sm transition-all duration-200"
+          :class="currentLayoutMode === 'tl' ? 'bg-indigo-600 text-white shadow-md scale-105' : 'bg-white text-gray-600 hover:bg-gray-50 hover:text-indigo-600'"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h6v6H3V3z" /></svg>
+        </button>
+        <button 
+          @click="setLayout('tr')" 
+          title="Top Right"
+          class="p-3 rounded-lg shadow-sm transition-all duration-200"
+          :class="currentLayoutMode === 'tr' ? 'bg-indigo-600 text-white shadow-md scale-105' : 'bg-white text-gray-600 hover:bg-gray-50 hover:text-indigo-600'"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3h6v6h-6V3z" /></svg>
+        </button>
+        <button 
+          @click="setLayout('center')" 
+          title="Focus Center"
+          class="p-3 rounded-lg shadow-sm transition-all duration-200"
+          :class="currentLayoutMode === 'center' ? 'bg-indigo-600 text-white shadow-md scale-105' : 'bg-white text-gray-600 hover:bg-gray-50 hover:text-indigo-600'"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16v16H4V4z M9 9h6v6H9V9z" /></svg>
+        </button>
+        <button 
+          @click="setLayout('bl')" 
+          title="Bottom Left"
+          class="p-3 rounded-lg shadow-sm transition-all duration-200"
+          :class="currentLayoutMode === 'bl' ? 'bg-indigo-600 text-white shadow-md scale-105' : 'bg-white text-gray-600 hover:bg-gray-50 hover:text-indigo-600'"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15h6v6H3v-6z" /></svg>
+        </button>
+        <button 
+          @click="setLayout('br')" 
+          title="Bottom Right"
+          class="p-3 rounded-lg shadow-sm transition-all duration-200"
+          :class="currentLayoutMode === 'br' ? 'bg-indigo-600 text-white shadow-md scale-105' : 'bg-white text-gray-600 hover:bg-gray-50 hover:text-indigo-600'"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15h6v6h-6v-6z" /></svg>
+        </button>
+      </div>
     </div>
 
     <div class="flex flex-col items-center gap-6 mb-8">
